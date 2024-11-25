@@ -24,4 +24,9 @@ public class Button
     {
         return (Robot.ReadDigitalPin(_pin) == PinValue.High) ? "Released" : "Pressed";
     }
+
+    public bool Pressed()
+    {
+        return GetState == "Pressed";
+    }
 }
