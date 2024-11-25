@@ -27,6 +27,6 @@ public class Button
 
     public bool Pressed()
     {
-        return GetState == "Pressed";
+        return GetState() == "Pressed";
     }
 }
