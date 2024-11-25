@@ -125,11 +125,18 @@ public static class Robot {
     /// <param name="notes">Parses the input string to determine note duration, octave, and whether the note is dotted. It handles octave (o), length (l), and octave shift (> and <) commands.</param>
     public static void PlayNotes(string notes)
     {
-        byte[] data = new byte[16];
-        data[0] = 1;
-        byte[] noteBytes = System.Text.Encoding.ASCII.GetBytes(notes);
-        Buffer.BlockCopy(noteBytes, 0, data, 1, Math.Min(noteBytes.Length, 14));
-        WriteRaw(24, data);
+        try
+        {
+            byte[] data = new byte[16];
+            data[0] = 1;
+            byte[] noteBytes = System.Text.Encoding.ASCII.GetBytes(notes);
+            Buffer.BlockCopy(noteBytes, 0, data, 1, Math.Min(noteBytes.Length, 14));
+            WriteRaw(24, data);
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine(error);
+        }
     }
 
     /// <summary>
