@@ -139,7 +139,22 @@ public static class Robot {
     /// <param name="speedRight">Speed right motor</param>
     public static void Motors(short speedLeft, short speedRight)
     {
-        WritePack(6,speedLeft,speedRight);
+        try{
+
+            WritePack(6,speedLeft,speedRight);
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine(error);
+        }
+    }
+
+    /// <summary>
+    /// stops the motors from moving by setting it to 0
+    /// </summary>
+    public static void MotorsOff()
+    {
+        Motors(0, 0);
     }
 
     /// <summary>
