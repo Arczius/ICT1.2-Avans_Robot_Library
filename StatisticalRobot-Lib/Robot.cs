@@ -12,7 +12,7 @@ public static class Robot {
     private static I2cBus i2cBus = I2cBus.Create(1);
     private static I2cDevice romi32u4 = i2cBus.CreateDevice(0x14);
     //This is the address 0x04 for the grovePi
-    private static I2cDevice grovePiAnalog = i2cBus.CreateDevice(0x08);
+    private static I2cDevice grovePiAnalog = i2cBus.CreateDevice(0x04);
 
     private static GpioController gpioController = new();
     private static PwmChannel? pwm;
@@ -20,6 +20,8 @@ public static class Robot {
 
     static Robot()
     {
+        byte grovePiAddress = 0x04;
+
         try
         {
             grovePiAnalog.WriteByte(0x01);
@@ -27,15 +29,17 @@ public static class Robot {
         }
         catch (Exception ex)
         {
-            i2cBus.RemoveDevice(0x08);
+            i2cBus.RemoveDevice(grovePiAddress);
             grovePiAnalog = null;
-            Console.WriteLine("0x08: " + ex.Message);
-            
+            // Console.WriteLine("GroveHat with address: " + grovePiAddress + " not found. ");
+            grovePiAddress = 0x08;
+            // Console.WriteLine("Checking I2C address for GroveHat: " + grovePiAddress);
+
         }
 
         if (grovePiAnalog == null)
         {
-            grovePiAnalog = i2cBus.CreateDevice(0x04);
+            grovePiAnalog = i2cBus.CreateDevice(grovePiAddress);
             try
             {
                 grovePiAnalog.WriteByte(0x01);
@@ -43,10 +47,27 @@ public static class Robot {
             }
             catch (Exception ex)
             {
-                Console.WriteLine("0x04 : " + ex.Message);
+
                 grovePiAnalog = null;
+                grovePiAddress = 0x00;
             }
         }
+
+        switch (grovePiAddress)
+        {
+            case 0x04:
+                // Nothing mentioned to the end user :)
+                // Console.WriteLine("GroveHat version 1.1. installed.");
+                break;
+            case 0x08:
+                Console.WriteLine("GroveHat version 1.0. installed.");
+                break;
+            default:
+                Console.WriteLine("Is the GroveHat installed? Continuing without.");
+                break;
+        }
+
+        PlayNotes("l8 >d>e>f>g>a>b>c");
     }
 
     //private static bool TestDevice(int d)
@@ -65,7 +86,6 @@ public static class Robot {
     {
         
         romi32u4.WriteByte((byte)address);
-        Thread.Sleep(1);
 
         // Lees de gegevens in de buffer
         byte[] readBuffer = new byte[size];
@@ -85,12 +105,10 @@ public static class Robot {
             .Prepend((byte)address)
             .ToArray();
         romi32u4.Write(writeBuffer);
-        Thread.Sleep(1); 
     }
 
     public static ComponentInformation GetQueryComponentInformation()
     {
-
         return i2cBus.QueryComponentInformation();
     }
 
@@ -105,7 +123,6 @@ public static class Robot {
             .ToArray();
 
         romi32u4.Write(writeBuffer);
-        Thread.Sleep(1);
     }
 
     /// <summary>
