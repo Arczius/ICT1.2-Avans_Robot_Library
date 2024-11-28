@@ -84,7 +84,6 @@ public static class Robot {
     /// <returns>A formatted list of objects</returns>
     private static object[] ReadUnpack(int address, int size, string format)
     {
-        
         romi32u4.WriteByte((byte)address);
 
         // Lees de gegevens in de buffer
@@ -101,10 +100,17 @@ public static class Robot {
     /// <param name="data">Data list</param>
     private static void WritePack(int address, params object[] data)
     {
-        byte[] writeBuffer = StructConverter.Pack(data)
-            .Prepend((byte)address)
-            .ToArray();
-        romi32u4.Write(writeBuffer);
+        try
+        {
+            byte[] writeBuffer = StructConverter.Pack(data)
+                .Prepend((byte)address)
+                .ToArray();
+            romi32u4.Write(writeBuffer);
+        }
+        catch(Exception error)
+        {
+            Console.WriteLine(error);
+        }
     }
 
     public static ComponentInformation GetQueryComponentInformation()
@@ -119,10 +125,16 @@ public static class Robot {
     /// <param name="data">Byte list</param>
     private static void WriteRaw(int address, byte[] data) 
     {
-        byte[] writeBuffer = data.Prepend((byte)address)
-            .ToArray();
+        try {
+            byte[] writeBuffer = data.Prepend((byte)address)
+                .ToArray();
 
-        romi32u4.Write(writeBuffer);
+            romi32u4.Write(writeBuffer);
+        }
+        catch(Exception error)
+        {
+            Console.WriteLine(error);
+        }
     }
 
     /// <summary>
@@ -142,18 +154,11 @@ public static class Robot {
     /// <param name="notes">Parses the input string to determine note duration, octave, and whether the note is dotted. It handles octave (o), length (l), and octave shift (> and <) commands.</param>
     public static void PlayNotes(string notes)
     {
-        try
-        {
-            byte[] data = new byte[16];
-            data[0] = 1;
-            byte[] noteBytes = System.Text.Encoding.ASCII.GetBytes(notes);
-            Buffer.BlockCopy(noteBytes, 0, data, 1, Math.Min(noteBytes.Length, 14));
-            WriteRaw(24, data);
-        }
-        catch (Exception error)
-        {
-            Console.WriteLine(error);
-        }
+        byte[] data = new byte[16];
+        data[0] = 1;
+        byte[] noteBytes = System.Text.Encoding.ASCII.GetBytes(notes);
+        Buffer.BlockCopy(noteBytes, 0, data, 1, Math.Min(noteBytes.Length, 14));
+        WriteRaw(24, data);
     }
 
     /// <summary>
@@ -163,14 +168,7 @@ public static class Robot {
     /// <param name="speedRight">Speed right motor</param>
     public static void Motors(short speedLeft, short speedRight)
     {
-        try{
-
-            WritePack(6,speedLeft,speedRight);
-        }
-        catch (Exception error)
-        {
-            Console.WriteLine(error);
-        }
+        WritePack(6,speedLeft,speedRight);
     }
 
     /// <summary>
